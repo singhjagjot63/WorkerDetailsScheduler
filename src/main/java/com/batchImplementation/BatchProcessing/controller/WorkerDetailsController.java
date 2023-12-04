@@ -1,8 +1,7 @@
 package com.batchImplementation.BatchProcessing.controller;
 
-import com.batchImplementation.BatchProcessing.batch.BookWriter;
-import com.batchImplementation.BatchProcessing.entity.BookEntity;
-import com.batchImplementation.BatchProcessing.repository.BookRepository;
+import com.batchImplementation.BatchProcessing.entity.WorkDetailsEntity;
+import com.batchImplementation.BatchProcessing.repository.WorkerDetailsRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,17 +12,17 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.List;
 
 @RestController
-@RequestMapping("/book")
-public class BookController {
+@RequestMapping("/workerdetails")
+public class WorkerDetailsController {
 
-    private final Logger logger = LoggerFactory.getLogger(BookController.class);
+    private final Logger logger = LoggerFactory.getLogger(WorkerDetailsController.class);
 
     @Autowired
-    private BookRepository bookRepository;
+    private WorkerDetailsRepository workerDetailsRepository;
 
     @GetMapping
-    public List<BookEntity> getAll() {
+    public List<WorkDetailsEntity> getAll() {
         logger.info("Handling find all");
-        return bookRepository.findAll();
+        return workerDetailsRepository.findAll();
     }
 }

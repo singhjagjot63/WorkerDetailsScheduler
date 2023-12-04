@@ -1,10 +1,10 @@
 package com.batchImplementation.BatchProcessing.config;
 
-import com.batchImplementation.BatchProcessing.batch.BookAuthorProcessor;
-import com.batchImplementation.BatchProcessing.batch.BookTitleProcessor;
-import com.batchImplementation.BatchProcessing.batch.BookWriter;
-import com.batchImplementation.BatchProcessing.batch.RestBookReader;
-import com.batchImplementation.BatchProcessing.entity.BookEntity;
+import com.batchImplementation.BatchProcessing.batch.SecondNameProcessor;
+import com.batchImplementation.BatchProcessing.batch.FirstNameProcessor;
+import com.batchImplementation.BatchProcessing.batch.WorkerDetailsWriter;
+import com.batchImplementation.BatchProcessing.batch.RestWorkerDetails;
+import com.batchImplementation.BatchProcessing.entity.WorkDetailsEntity;
 import org.springframework.batch.core.Job;
 import org.springframework.batch.core.Step;
 import org.springframework.batch.core.configuration.annotation.StepScope;
@@ -25,15 +25,14 @@ import org.springframework.core.io.ClassPathResource;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.web.client.RestTemplate;
 
-import java.awt.print.Book;
 import java.util.List;
 
 @Configuration
 public class BatchConfig {
 
     @Bean
-    public Job bookReaderJob(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-        return new JobBuilder("bookReadJob", jobRepository)
+    public Job workerDetailsReaderJob(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
+        return new JobBuilder("workerDetailsReadJob", jobRepository)
                 .incrementer(new RunIdIncrementer())
                 .start(chunkStep(jobRepository, transactionManager))
                 .build();
@@ -41,10 +40,10 @@ public class BatchConfig {
 
     @Bean
     public Step chunkStep(JobRepository jobRepository, PlatformTransactionManager transactionManager) {
-        return new StepBuilder("bookReaderStep", jobRepository)
-                .<BookEntity, BookEntity>chunk(10, transactionManager)
+        return new StepBuilder("workerDetailsReaderStep", jobRepository)
+                .<WorkDetailsEntity, WorkDetailsEntity>chunk(10, transactionManager)
     //            .reader(reader())
-                .reader(restBookReader())
+                .reader(restWorkerDetailsReader())
                 .processor(processor())
                 .writer(writer())
                 .build();
@@ -52,36 +51,36 @@ public class BatchConfig {
 
     @StepScope
     @Bean
-    public ItemReader<BookEntity> restBookReader() {
-        return new RestBookReader("http://localhost:8081/book", new RestTemplate());
+    public ItemReader<WorkDetailsEntity> restWorkerDetailsReader() {
+        return new RestWorkerDetails("http://localhost:8081/workerdetails", new RestTemplate());
     }
 
     @StepScope
     @Bean
-    public ItemWriter<BookEntity> writer() {
-        return new BookWriter();
+    public ItemWriter<WorkDetailsEntity> writer() {
+        return new WorkerDetailsWriter();
     }
 
     @StepScope
     @Bean
-    public ItemProcessor<BookEntity, BookEntity> processor() {
-        CompositeItemProcessor<BookEntity, BookEntity> processor = new CompositeItemProcessor<>();
-        processor.setDelegates(List.of(new BookTitleProcessor(), new BookAuthorProcessor()));
+    public ItemProcessor<WorkDetailsEntity, WorkDetailsEntity> processor() {
+        CompositeItemProcessor<WorkDetailsEntity, WorkDetailsEntity> processor = new CompositeItemProcessor<>();
+        processor.setDelegates(List.of(new FirstNameProcessor(), new SecondNameProcessor()));
         return processor;
     }
 
     @Bean
     @StepScope
-    public FlatFileItemReader<BookEntity> reader() {
+    public FlatFileItemReader<WorkDetailsEntity> reader() {
 
-        return new FlatFileItemReaderBuilder<BookEntity>()
-                .name("bookReader")
-                .resource(new ClassPathResource("book_data.csv"))
+        return new FlatFileItemReaderBuilder<WorkDetailsEntity>()
+                .name("workerDetailsReader")
+                .resource(new ClassPathResource("worker_details.csv"))
                 .delimited()
                 .names(new String[]{"first_name","second_name","birth_year"})
                 .fieldSetMapper(new BeanWrapperFieldSetMapper<>() {
                     {
-                        setTargetType(BookEntity.class);
+                        setTargetType(WorkDetailsEntity.class);
                     }
                 })
                 .build();
