@@ -12,7 +12,7 @@ public class RestWorkerDetails implements ItemReader<WorkDetailsEntity> {
 
     private final String url;
     private final RestTemplate restTemplate;
-    private int nextBook;
+    private int nextWorkerDetail;
     private List<WorkDetailsEntity> workDetailsEntityList;
 
     public RestWorkerDetails(String url, RestTemplate restTemplate) {
@@ -23,24 +23,24 @@ public class RestWorkerDetails implements ItemReader<WorkDetailsEntity> {
     @Override
     public WorkDetailsEntity read() throws Exception {
         if(this.workDetailsEntityList == null) {
-            workDetailsEntityList = fetchBooks();
+            workDetailsEntityList = fetchWorkerDetails();
         }
-        WorkDetailsEntity book = null;
-        if(nextBook< workDetailsEntityList.size()) {
-            book = workDetailsEntityList.get(nextBook);
-            nextBook++;
+        WorkDetailsEntity workDetails = null;
+        if(nextWorkerDetail < workDetailsEntityList.size()) {
+            workDetails = workDetailsEntityList.get(nextWorkerDetail);
+            nextWorkerDetail++;
         } else {
-            nextBook = 0;
+            nextWorkerDetail = 0;
             workDetailsEntityList = null;
         }
-        return book;
+        return workDetails;
     }
 
-    private List<WorkDetailsEntity> fetchBooks() {
+    private List<WorkDetailsEntity> fetchWorkerDetails() {
         ResponseEntity<WorkDetailsEntity[]> response = restTemplate.getForEntity(this.url, WorkDetailsEntity[].class);
-        WorkDetailsEntity[] books = response.getBody();
-        if(books != null) {
-            return Arrays.asList(books);
+        WorkDetailsEntity[] workerDetails = response.getBody();
+        if(workerDetails != null) {
+            return Arrays.asList(workerDetails);
         }
         return null;
     }
