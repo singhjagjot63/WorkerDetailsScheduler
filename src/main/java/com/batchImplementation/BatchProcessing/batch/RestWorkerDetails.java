@@ -36,7 +36,7 @@ public class RestWorkerDetails implements ItemReader<WorkDetailsEntity> {
         return workDetails;
     }
 
-    private List<WorkDetailsEntity> fetchWorkerDetails() {
+    public List<WorkDetailsEntity> fetchWorkerDetails() {
         ResponseEntity<WorkDetailsEntity[]> response = restTemplate.getForEntity(this.url, WorkDetailsEntity[].class);
         WorkDetailsEntity[] workerDetails = response.getBody();
         if(workerDetails != null) {
